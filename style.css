@@ -1,0 +1,46 @@
+* {
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+}
+
+button {
+  margin-left: 44vw;
+  width: 100px;
+  height: 25px;
+}
+
+#score {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  justify-items: center;
+}
+
+#game_board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 30vw;
+  height: 30vw;
+  margin: 0 auto;
+}
+
+#game_board div {
+  border: 1px solid black;
+}
+
+.cell {
+  font-size: 8vw;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  user-select: none;
+}
+
+#message {
+  text-align: center;
+  font-size: 3rem;
+  margin-top: 1rem;
+}
