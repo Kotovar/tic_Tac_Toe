@@ -26,9 +26,13 @@ let game = (function () {
         }
       }
       Gameboard.line[currentDiv] = symbol;
-      checkGameWin();
-      allCellsFull();
+
+      playerCanNotTurn();
+      // allCellsFull();
       changeSymbol();
+      checkGameWin() === "no end" && allCellsFull() === "no end"
+        ? setTimeout(aiTurn, 500)
+        : null;
     }
   };
 
@@ -41,7 +45,7 @@ let game = (function () {
     Gameboard.line[NewArrayWithIndexs[randomCell]] = symbol;
     checkGameWin();
     changeSymbol();
-    console.log(Gameboard.line);
+    playerCanTurn();
   };
 
   //включить возможность ходить игроку
@@ -59,7 +63,9 @@ let game = (function () {
     if (Gameboard.line.every((el) => el !== "")) {
       message.textContent = "Draw!";
       playerCanNotTurn();
+      return;
     }
+    return "no end";
   }
 
   //проверка содержимого массива
@@ -89,18 +95,18 @@ let game = (function () {
       [0, 4, 8],
       [2, 4, 6],
     ];
-
     let lines = [...horizontal, ...vertical, ...diagonal];
-
     for (let combo of lines) {
       let [a, b, c] = combo.map((i) => Gameboard.line[i]);
       if (a === b && a === c && a !== "") {
-        message.textContent = "Победа " + a + "!";
+        message.textContent = "Round by player " + a + "!";
+
         addScore(a);
         playerCanNotTurn();
         return;
       }
     }
+    return "no end";
   };
 
   //добавление победных очков и объявление финала
@@ -108,9 +114,9 @@ let game = (function () {
     char === "X"
       ? (leftWins++, (scoreLeft.textContent = leftWins))
       : (rightWins++, (scoreRight.textContent = rightWins));
-    if (leftWins >= 3) {
+    if (leftWins === 3) {
       final("1");
-    } else if (rightWins >= 3) {
+    } else if (rightWins === 3) {
       final("2");
     }
   };
