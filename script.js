@@ -5,19 +5,19 @@ let game = (function () {
   };
 
   //получение элементов DOM
-  let board = document.getElementById("game_board");
-  let message = document.getElementById("message");
-  let button = document.getElementById("button");
-  let scoreLeft = document.getElementById("first_player");
-  let scoreRight = document.getElementById("second_player");
+  const board = document.getElementById("game_board");
+  const message = document.getElementById("message");
+  const button = document.getElementById("button");
+  const scoreLeft = document.getElementById("first_player");
+  const scoreRight = document.getElementById("second_player");
 
   //Стартовые элементы
   let symbol = "X";
   let leftWins = 0;
   let rightWins = 0;
 
-  //функция клика для игрока
-  let listener = function (e) {
+  //Ход игрока
+  let playerTurn = function (e) {
     if (e.target.className === "cell" && e.target.innerText === "") {
       e.target.innerText = symbol;
       for (let i = 0; i < 9; i++) {
@@ -26,47 +26,41 @@ let game = (function () {
         }
       }
       Gameboard.line[currentDiv] = symbol;
-      gameWin();
-      checkCells(Gameboard);
-      if (symbol === "X") {
-        symbol = "O";
-      } else {
-        symbol = "X";
-      }
+      checkGameWin();
+      allCellsFull();
+      changeSymbol();
     }
   };
 
-  //включить прослушивание
-  let listenerOn = function () {
-    board.addEventListener("click", listener);
+  //Ход ИИ
+  let aiTurn = function () {
+    let temp = Gameboard.line.map((el, i) => (el === "" ? i : null));
+    let NewArrayWithIndexs = temp.filter((el) => el !== null);
+    let randomCell = Math.floor(Math.random() * NewArrayWithIndexs.length);
+    board.children[NewArrayWithIndexs[randomCell]].textContent = symbol;
+    Gameboard.line[NewArrayWithIndexs[randomCell]] = symbol;
+    checkGameWin();
+    changeSymbol();
+    console.log(Gameboard.line);
   };
 
-  //отключить прослушивание
-  let listenerOff = function () {
-    board.removeEventListener("click", listener);
+  //включить возможность ходить игроку
+  let playerCanTurn = function () {
+    board.addEventListener("click", playerTurn);
+  };
+
+  //выключить возможность ходить игроку
+  let playerCanNotTurn = function () {
+    board.removeEventListener("click", playerTurn);
   };
 
   // проверка, что все ячейки заполнены
-  function checkCells(board) {
-    if (board.line.every((el) => el !== "")) {
-      message.textContent = "Игра завершена!";
-      listenerOff();
+  function allCellsFull() {
+    if (Gameboard.line.every((el) => el !== "")) {
+      message.textContent = "Draw!";
+      playerCanNotTurn();
     }
   }
-
-  //сброс игры
-  let cleaning = function () {
-    Gameboard = {
-      line: ["", "", "", "", "", "", "", "", ""],
-    };
-    for (let i = 0; i < 9; i++) {
-      board.children.item(i).textContent = "";
-    }
-    message.textContent = "";
-    symbol = "X";
-    scoreLeft.textContent = leftWins;
-    scoreRight.textContent = rightWins;
-  };
 
   //проверка содержимого массива
   let getArray = function () {
@@ -76,11 +70,11 @@ let game = (function () {
   //привязка функций к кнопке
   button.addEventListener("click", function () {
     cleaning();
-    listenerOn();
+    playerCanTurn();
   });
 
   //проверка, победил ли кто-нибудь
-  let gameWin = function () {
+  let checkGameWin = function () {
     let horizontal = [
       [0, 1, 2],
       [3, 4, 5],
@@ -103,12 +97,13 @@ let game = (function () {
       if (a === b && a === c && a !== "") {
         message.textContent = "Победа " + a + "!";
         addScore(a);
-        listenerOff();
+        playerCanNotTurn();
         return;
       }
     }
   };
 
+  //добавление победных очков и объявление финала
   let addScore = function (char) {
     char === "X"
       ? (leftWins++, (scoreLeft.textContent = leftWins))
@@ -120,16 +115,41 @@ let game = (function () {
     }
   };
 
+  //Финал
   let final = function (player) {
-    alert("Победил " + player + "й игрок!");
+    alert("Player " + player + " wins");
     leftWins = 0;
     rightWins = 0;
   };
 
+  //смена символа Х или О
+  function changeSymbol() {
+    if (symbol === "X") {
+      symbol = "O";
+    } else {
+      symbol = "X";
+    }
+  }
+
+  //сброс игры
+  let cleaning = function () {
+    Gameboard = {
+      line: ["", "", "", "", "", "", "", "", ""],
+    };
+    for (let i = 0; i < 9; i++) {
+      board.children.item(i).textContent = "";
+    }
+    message.textContent = "";
+    symbol = "X";
+    scoreLeft.textContent = leftWins;
+    scoreRight.textContent = rightWins;
+  };
+
   return {
-    listenerOn: listenerOn,
-    listenerOff: listenerOff,
+    playerCanTurn: playerCanTurn,
+    playerCanNotTurn: playerCanNotTurn,
     cleaning: cleaning,
     getArray: getArray,
+    aiTurn: aiTurn,
   };
 })();
