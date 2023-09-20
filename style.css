@@ -7,9 +7,14 @@ h1 {
 }
 
 button {
-  margin-left: 44vw;
-  width: 100px;
-  height: 25px;
+  margin: 1rem;
+  width: 15vh;
+}
+
+#buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
 #score {

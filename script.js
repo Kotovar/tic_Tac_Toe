@@ -1,13 +1,25 @@
 let game = (function () {
-  //массив со значениями клеток
+  //массив со значениями клеток и победными комбинациями
   let Gameboard = {
     line: ["", "", "", "", "", "", "", "", ""],
   };
 
+  const winLines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+
   //получение элементов DOM
   const board = document.getElementById("game_board");
   const message = document.getElementById("message");
-  const button = document.getElementById("button");
+  // const button = document.getElementById("button");
+  const buttons = document.getElementById("buttons");
   const scoreLeft = document.getElementById("first_player");
   const scoreRight = document.getElementById("second_player");
 
@@ -15,48 +27,64 @@ let game = (function () {
   let symbol = "X";
   let leftWins = 0;
   let rightWins = 0;
+  let gameVsAi = false;
 
   //Ход игрока
   let playerTurn = function (e) {
-    if (e.target.className === "cell" && e.target.innerText === "") {
-      e.target.innerText = symbol;
-      for (let i = 0; i < 9; i++) {
-        if (board.children[i] == e.target) {
-          currentDiv = i;
-        }
-      }
-      Gameboard.line[currentDiv] = symbol;
+    updateBoard(e);
+    changeSymbol();
+    checkGameWin(playerTurn);
+    allCellsFull();
+  };
 
-      playerCanNotTurn();
-      // allCellsFull();
-      changeSymbol();
-      checkGameWin() === "no end" && allCellsFull() === "no end"
-        ? setTimeout(aiTurn, 500)
-        : null;
+  //отрисовать Х или О
+  let updateBoard = function (e) {
+    let cell = e.target;
+    if (cell.className === "cell" && cell.innerText === "") {
+      cell.innerText = symbol;
+      currentDiv = [...board.children].indexOf(cell);
+      Gameboard.line[currentDiv] = symbol;
     }
   };
 
-  //Ход ИИ
-  let aiTurn = function () {
-    let temp = Gameboard.line.map((el, i) => (el === "" ? i : null));
-    let NewArrayWithIndexs = temp.filter((el) => el !== null);
-    let randomCell = Math.floor(Math.random() * NewArrayWithIndexs.length);
-    board.children[NewArrayWithIndexs[randomCell]].textContent = symbol;
-    Gameboard.line[NewArrayWithIndexs[randomCell]] = symbol;
-    checkGameWin();
+  //Ход игрока и компьютера
+  let playerVsAi = function (e) {
+    updateBoard(e);
+    playerCanNotTurn(playerVsAi);
     changeSymbol();
-    playerCanTurn();
+    checkGameWin() === "no end" && allCellsFull() === "no end"
+      ? setTimeout(aiTurn, 500)
+      : null;
   };
 
-  //включить возможность ходить игроку
-  let playerCanTurn = function () {
-    board.addEventListener("click", playerTurn);
+  //Ход ИИ
+  let aiTurn = function (mode) {
+    let emptyCells = Gameboard.line
+      .map((el, i) => (el === "" ? i : null))
+      .filter((el) => el !== null);
+    let randomCell = Math.floor(Math.random() * emptyCells.length);
+    board.children[emptyCells[randomCell]].textContent = symbol;
+    Gameboard.line[emptyCells[randomCell]] = symbol;
+    mode !== "bothComputers" ? checkGameWin() : null;
+    changeSymbol();
+    gameVsAi ? playerCanTurn(playerVsAi) : null;
   };
 
-  //выключить возможность ходить игроку
-  let playerCanNotTurn = function () {
-    board.removeEventListener("click", playerTurn);
+  //режим ИИ против ИИ
+  let aiVsAi = function () {
+    let interval = 1000;
+    let oneTurn = function () {
+      aiTurn("bothComputers");
+      if (checkGameWin() !== "no end" || allCellsFull() !== "no end") {
+        clearInterval(turns);
+      }
+    };
+    let turns = setInterval(oneTurn, interval);
   };
+
+  //включить(выключить) возможность ходить игроку
+  let playerCanTurn = (choose) => board.addEventListener("click", choose);
+  let playerCanNotTurn = (choose) => board.removeEventListener("click", choose);
 
   // проверка, что все ячейки заполнены
   function allCellsFull() {
@@ -68,41 +96,34 @@ let game = (function () {
     return "no end";
   }
 
-  //проверка содержимого массива
-  let getArray = function () {
-    console.log(Gameboard.line);
-  };
-
-  //привязка функций к кнопке
-  button.addEventListener("click", function () {
-    cleaning();
-    playerCanTurn();
+  //привязка функций к кнопкам
+  buttons.addEventListener("click", function (e) {
+    // console.log(e.target.id);
+    switch (e.target.id) {
+      case "buttonPA":
+        cleaning();
+        playerCanTurn(playerVsAi);
+        gameVsAi = true;
+        break;
+      case "buttonPP":
+        cleaning();
+        playerCanTurn(playerTurn);
+        break;
+      case "buttonAA":
+        cleaning();
+        aiVsAi();
+        gameVsAi = false;
+    }
   });
 
   //проверка, победил ли кто-нибудь
-  let checkGameWin = function () {
-    let horizontal = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-    ];
-    let vertical = [
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-    ];
-    let diagonal = [
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-    let lines = [...horizontal, ...vertical, ...diagonal];
-    for (let combo of lines) {
+  let checkGameWin = function (mode) {
+    for (let combo of winLines) {
       let [a, b, c] = combo.map((i) => Gameboard.line[i]);
       if (a === b && a === c && a !== "") {
         message.textContent = "Round by player " + a + "!";
-
         addScore(a);
-        playerCanNotTurn();
+        playerCanNotTurn(mode);
         return;
       }
     }
@@ -149,13 +170,5 @@ let game = (function () {
     symbol = "X";
     scoreLeft.textContent = leftWins;
     scoreRight.textContent = rightWins;
-  };
-
-  return {
-    playerCanTurn: playerCanTurn,
-    playerCanNotTurn: playerCanNotTurn,
-    cleaning: cleaning,
-    getArray: getArray,
-    aiTurn: aiTurn,
   };
 })();
