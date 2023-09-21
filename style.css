@@ -1,5 +1,23 @@
 * {
   padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: rgb(218, 213, 231);
+}
+
+header {
+  margin-top: 2vh;
+  height: 20vh;
+}
+
+main {
+  height: 80vh;
+}
+
+p {
+  font-weight: bold;
 }
 
 h1 {
@@ -7,14 +25,19 @@ h1 {
 }
 
 button {
-  margin: 1rem;
-  width: 15vh;
+  margin: 5px;
+  width: 10rem;
+  border: none;
+  border-radius: 5px;
+  background-color: rgb(85, 130, 219);
 }
 
-#buttons {
+#buttons,
+#buttonsStart {
   display: flex;
   justify-content: center;
   gap: 1rem;
+  height: 5vh;
 }
 
 #score {
@@ -48,4 +71,19 @@ button {
   text-align: center;
   font-size: 3rem;
   margin-top: 1rem;
+}
+
+.unvisible {
+  display: none;
+}
+
+@media screen and (max-width: 820px) {
+  #game_board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    width: 70vw;
+    height: 70vw;
+    margin: 0 auto;
+  }
 }

@@ -18,10 +18,14 @@ let game = (function () {
   //получение элементов DOM
   const board = document.getElementById("game_board");
   const message = document.getElementById("message");
-  // const button = document.getElementById("button");
+  const buttonStart = document.getElementById("buttonStart");
+  const buttonChange = document.getElementById("buttonChange");
   const buttons = document.getElementById("buttons");
   const scoreLeft = document.getElementById("first_player");
   const scoreRight = document.getElementById("second_player");
+  const buttonPP = document.getElementById("buttonPP");
+  const buttonPA = document.getElementById("buttonPA");
+  const buttonAA = document.getElementById("buttonAA");
 
   //Стартовые элементы
   let symbol = "X";
@@ -29,14 +33,74 @@ let game = (function () {
   let rightWins = 0;
   let gameVsAi = false;
 
-  //Ход игрока
-  let playerTurn = function (e) {
-    updateBoard(e);
-    changeSymbol();
-    checkGameWin(playerTurn);
-    allCellsFull();
+  //Старт игры
+  buttonStart.addEventListener("click", startGame);
+
+  //смена режима
+  buttonChange.addEventListener("click", changeMode);
+
+  //Выбор режима игры
+  buttons.addEventListener("click", chooseMode);
+
+  //скрыть элементы управления
+  let hideButtons = function (mode) {
+    for (let i = 0; i < 3; i++) {
+      mode === "add"
+        ? buttons.children[i].classList.add("unvisible")
+        : buttons.children[i].classList.remove("unvisible");
+    }
   };
 
+  //старт игры
+  function startGame() {
+    hideButtons();
+    buttonStart.classList.add("unvisible");
+    buttonChange.classList.add("unvisible");
+  }
+
+  //смена режима
+  function changeMode() {
+    leftWins = 0;
+    rightWins = 0;
+    cleaning();
+    hideButtons();
+    buttonPA.textContent = "Person vs AI";
+    buttonPP.textContent = "P vs P";
+    buttonAA.textContent = "AI vs AI";
+    symbol = "X";
+  }
+
+  //выбор режима игры
+  function chooseMode(e) {
+    buttonChange.classList.remove("unvisible");
+    switch (e.target.id) {
+      case "buttonPA":
+        cleaning();
+        playerCanTurn(playerVsAi);
+        buttonChange.classList.remove("unvisible");
+        buttonPP.classList.add("unvisible");
+        buttonAA.classList.add("unvisible");
+        buttonPA.textContent = "Next turn";
+        gameVsAi = true;
+        break;
+      case "buttonPP":
+        cleaning();
+        playerCanTurn(playerTurn);
+        buttonChange.classList.remove("unvisible");
+        buttonPA.classList.add("unvisible");
+        buttonAA.classList.add("unvisible");
+        buttonPP.textContent = "Next turn";
+        break;
+      case "buttonAA":
+        cleaning();
+        aiVsAi();
+        buttonChange.classList.remove("unvisible");
+        buttonPP.classList.add("unvisible");
+        buttonPA.classList.add("unvisible");
+        buttonAA.textContent = "Next turn";
+        gameVsAi = false;
+    }
+  }
   //отрисовать Х или О
   let updateBoard = function (e) {
     let cell = e.target;
@@ -45,6 +109,14 @@ let game = (function () {
       currentDiv = [...board.children].indexOf(cell);
       Gameboard.line[currentDiv] = symbol;
     }
+  };
+
+  //Ход игрока
+  let playerTurn = function (e) {
+    updateBoard(e);
+    changeSymbol();
+    checkGameWin(playerTurn);
+    allCellsFull();
   };
 
   //Ход игрока и компьютера
@@ -95,26 +167,6 @@ let game = (function () {
     }
     return "no end";
   }
-
-  //привязка функций к кнопкам
-  buttons.addEventListener("click", function (e) {
-    // console.log(e.target.id);
-    switch (e.target.id) {
-      case "buttonPA":
-        cleaning();
-        playerCanTurn(playerVsAi);
-        gameVsAi = true;
-        break;
-      case "buttonPP":
-        cleaning();
-        playerCanTurn(playerTurn);
-        break;
-      case "buttonAA":
-        cleaning();
-        aiVsAi();
-        gameVsAi = false;
-    }
-  });
 
   //проверка, победил ли кто-нибудь
   let checkGameWin = function (mode) {

@@ -8,30 +8,38 @@
     <script src="script.js" defer></script>
   </head>
   <body>
-    <h1>Game</h1>
-    <div id="buttons">
-      <button id="buttonPP">Person vs Person</button>
-      <button id="buttonPA">Person vs AI</button>
-      <button id="buttonAA">AI vs AI</button>
-    </div>
+    <header>
+      <h1>Game</h1>
+      <div id="buttonsStart">
+        <button id="buttonStart">Start</button>
+        <button class="unvisible" id="buttonChange">Change mode</button>
+      </div>
+      <div id="buttons">
+        <button class="unvisible" id="buttonPP">P vs P</button>
+        <button class="unvisible" id="buttonPA">Person vs AI</button>
+        <button class="unvisible" id="buttonAA">AI vs AI</button>
+      </div>
 
-    <div id="score">
-      <p>Score:</p>
-      <p>Score:</p>
-      <p id="first_player"></p>
-      <p id="second_player"></p>
-    </div>
-    <div id="game_board">
-      <div class="cell"></div>
-      <div class="cell"></div>
-      <div class="cell"></div>
-      <div class="cell"></div>
-      <div class="cell"></div>
-      <div class="cell"></div>
-      <div class="cell"></div>
-      <div class="cell"></div>
-      <div class="cell"></div>
-    </div>
-    <div id="message"></div>
+      <div id="score">
+        <p>Player 1 score:</p>
+        <p>Player 2 Score:</p>
+        <p id="first_player"></p>
+        <p id="second_player"></p>
+      </div>
+    </header>
+    <main>
+      <div id="game_board">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div id="message"></div>
+    </main>
   </body>
 </html>
